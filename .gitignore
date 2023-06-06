@@ -25,3 +25,5 @@ yarn-error.log*
 blog-backend/.env
 blog-backend/yarn.lock
 blog-frontend/yarn.lock
+blog-backend/node_modules
+blog-frontend/node_modules
