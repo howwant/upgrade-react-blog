@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { changeField, initializeForm, register } from "../../modules/auth";
+import { useMutation } from '@tanstack/react-query';
+import { changeField, initializeForm } from "../../modules/auth";
 import AuthForm from "../../components/common/auth/AuthForm";
+import { registerAPI } from "../../lib/api/auth";
 
 const RegisterForm = () => {
     const dispatch = useDispatch();
-    const { form, auth, authError } = useSelector(({ auth }) => ({
+    const { form } = useSelector(({ auth }) => ({
         form: auth.register,
-        auth: auth.auth,
-        authError: auth.authError,
     }));
     const onChange = e => {
         const { value, name } = e.target;
@@ -20,6 +20,22 @@ const RegisterForm = () => {
             })
         )
     }
+    const loginMutation = useMutation(
+        registerAPI,
+        {
+        onSuccess: (data, variables, context) => {
+            console.log("success", data, variables, context);
+            },
+          onError: (error) => console.log(error),
+          onMutate: variable => {
+            console.log("onMutate", variable);
+            // variable : {loginId: 'xxx', password; 'xxx'}
+            },
+          onSettled: () => {
+            console.log("end");
+          }
+        },
+    );
     const onSubmit = e => {
         e.preventDefault();
         const { username, password, passwordConfirm } = form;
@@ -27,24 +43,11 @@ const RegisterForm = () => {
             // todo 오류 처리
             return;
         }
-        dispatch(register({ username, password }));
+        loginMutation.mutate({ username, password });
     }
     useEffect(() => {
         dispatch(initializeForm('register'));
     }, [dispatch]);
-
-    // 회원 가입 성공실패
-    useEffect(()=> {
-        if (authError) {
-            console.log('오류 발생');
-            console.log(authError);
-            return;
-        }
-        if (auth) {
-            console.log('회원가입 성공');
-            console.log(auth);
-        }
-    },[auth, authError]);
 
     return (
         <AuthForm

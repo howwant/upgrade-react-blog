@@ -4,25 +4,28 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import rootReducer, { rootSaga } from './modules/index';
-import createSagaMiddleware from '@redux-saga/core';
+import rootReducer from './modules/index';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-const sagaMiddleware = createSagaMiddleware();
+const queryClient = new QueryClient();
 
 // yarn redux-devtools-extension 사용안함 삭제바람
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const store = configureStore({
   reducer : rootReducer,
-  middleware: [sagaMiddleware]
 });
-sagaMiddleware.run(rootSaga);
 
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-    <BrowserRouter>
-    <App />
-    </BrowserRouter>
-    </Provider>
+     <QueryClientProvider client={queryClient}>
+      {/* devtools */}
+      <ReactQueryDevtools initialIsOpen={false} position='bottom-right'/>
+      <Provider store={store}>
+      <BrowserRouter>
+      <App />
+      </BrowserRouter>
+      </Provider>
+    </QueryClientProvider>
   </React.StrictMode>
 );
